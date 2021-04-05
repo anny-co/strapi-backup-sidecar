@@ -1,0 +1,19 @@
+{
+  "name": "strapi-backup-sidecar",
+  "version": "1.0.0",
+  "description": "Minimal NodeJS project to run as sidecar container to a strapi instance to periodically backup project files and optionally uploading to S3 buckets",
+  "main": "backup.js",
+  "repository": "git@gitlab.com:anny.co/build-utils/strapi-backup-sidecar.git",
+  "author": "Alexander Bartolomey <occloxium@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node backup.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.11.0",
+    "dayjs": "^1.10.4",
+    "node-cron": "^3.0.0",
+    "tar": "^6.1.0",
+    "winston": "^3.3.3"
+  }
+}
