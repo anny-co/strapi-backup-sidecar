@@ -22,9 +22,11 @@ const logger = winston.createLogger({
 });
 
 const bucketName = process.env.AWS_BUCKET;
+const region = process.env.AWS_DEFAULT_REGION;
+
 const schedule = process.env.BACKUP_SCHEDULE || "* * * * *";
 
-const uploadToS3 = process.env.BACKUP_UPLOAD_TO_S3_ENABLED == true;
+const uploadToS3 = process.env.BACKUP_UPLOAD_TO_S3_ENABLED === "true";
 
 const appDirectory = process.env.APP_DIR;
 const backupDir = process.env.BACKUP_DIR || "/backup";
@@ -108,7 +110,9 @@ cron.schedule(schedule, async () => {
         Body: archiveBuffer,
         ContentType: "application/gzip",
       };
-      const s3 = new S3Client();
+      const s3 = new S3Client({
+        region: region,
+      });
       await s3.send(new PutObjectCommand(uploadParams));
       logger.info("Uploaded archive", {
         name: archiveName,
@@ -133,7 +137,7 @@ cron.schedule(schedule, async () => {
       unit: "seconds",
     });
   } catch (err) {
-    logger.error(err);
+    logger.error(err.message, { err });
     process.exit(1);
   }
 });
