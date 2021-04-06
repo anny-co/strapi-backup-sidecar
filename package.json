@@ -4,7 +4,11 @@
   "description": "Minimal NodeJS project to run as sidecar container to a strapi instance to periodically backup project files and optionally uploading to S3 buckets",
   "main": "backup.js",
   "repository": "git@gitlab.com:anny.co/build-utils/strapi-backup-sidecar.git",
-  "author": "Alexander Bartolomey <occloxium@gmail.com>",
+  "author": {
+    "email": "alexander.bartolomey@anny.co",
+    "name": "Alexander Bartolomey",
+    "url": "https://anny.co"
+  },
   "license": "MIT",
   "scripts": {
     "start": "node backup.js"
