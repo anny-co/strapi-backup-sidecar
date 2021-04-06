@@ -70,7 +70,9 @@ cron.schedule(schedule, async () => {
         logger.error(
           "Pre-dumped config does NOT exist, falling back to empty JSON file"
         );
-        await fs.writeFile(join(appDirectory, configFile), "{}");
+        await fs.writeFile(join(appDirectory, configFile), "{}", {
+          encoding: "utf-8",
+        });
       }
     }
 
