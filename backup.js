@@ -14,7 +14,7 @@ const { combine, timestamp, prettyPrint } = winston.format;
 
 const logger = winston.createLogger({
   level: "debug",
-  formats: combine(timestamp, prettyPrint),
+  formats: combine(timestamp(), prettyPrint()),
   transports: [
     new winston.transports.Console(),
     new winston.transports.File({ filename: "backup.log" }),
@@ -22,13 +22,13 @@ const logger = winston.createLogger({
 });
 
 const bucketName = process.env.AWS_BUCKET;
-const schedule = process.env.BACKUP_SCHEDULE || "0 */6 * * *";
+const schedule = process.env.BACKUP_SCHEDULE || "* * * * *";
 
 const uploadToS3 = process.env.BACKUP_UPLOAD_TO_S3_ENABLED == true;
 
 const appDirectory = process.env.APP_DIR;
-const backupDir = process.env.BACKUP_DIR;
-const configFile = process.env.CONFIG_FILE;
+const backupDir = process.env.BACKUP_DIR || "/backup";
+const configFile = process.env.CONFIG_FILE || "strapi.config.json";
 const appFullname = process.env.APP_FULLNAME;
 const backupPathPrefix = process.env.BACKUP_PATH_PREFIX;
 
@@ -37,52 +37,62 @@ const backupPathPrefix = process.env.BACKUP_PATH_PREFIX;
  */
 cron.schedule(schedule, async () => {
   try {
+    logger.info("Starting backup cycle");
     const start = dayjs();
-    const filenames = ["api", "public", "config", "components"];
+    const filenames = [
+      "api",
+      "public",
+      "config",
+      "components",
+      "strapi.config.json",
+    ];
 
     // dump current strapi config to $BACKUP_DIR
+    logger.info("Dumping strapi config file to backup directory");
     try {
       await exec(
-        `yarn strapi configuration:dump --pretty --file ${backupDir}/${configFile}`,
+        `yarn strapi configuration:dump --pretty --file ${appDirectory}/${configFile}`,
         {
           cwd: appDirectory,
         }
       );
+      logger.info("Dumped strapi config file");
     } catch (err) {
       logger.error(
         "Failed to dump config, falling back to existing config file"
       );
       try {
-        await fs.access(join(backupDir, configFile));
+        await fs.access(join(appDirectory, configFile));
         logger.info("Pre-dumped config exists, using this file as fallback");
       } catch (err) {
         logger.error(
           "Pre-dumped config does NOT exist, falling back to empty JSON file"
         );
-        await fs.writeFile(join(backupDir, configFile), "{}");
+        await fs.writeFile(join(appDirectory, configFile), "{}");
       }
     }
 
     // directory to write the archive to
-    const archiveDirectory = join(backupDir, "archives");
+    const archiveDirectory = backupDir;
 
     // archive with timestamp as unix
-    const archiveName = kebabCase(`${appFullname}-backup-${start.unix()}.tgz`);
+    const archiveName =
+      kebabCase(`${appFullname}-backup-${start.unix()}`) + ".tgz";
 
     // create a tarball w/ gzip in $BACKUP_DIR/archives/
     await tar.create(
       {
         gzip: true,
-        cwd: archiveDirectory,
-        file: archiveName,
+        cwd: appDirectory,
+        file: join(backupDir, archiveName),
       },
-      [
-        ...filenames.map((p) => join(appDirectory, p)),
-        join(backupDir, configFile),
-      ]
+      filenames
     );
 
-    logger.info(`Bundled tarball to ${archiveName}`);
+    logger.info(`Bundled tarball to ${archiveName}`, {
+      dir: archiveDirectory,
+      file: archiveName,
+    });
 
     // S3 upload of archive
     if (uploadToS3) {
@@ -113,7 +123,7 @@ cron.schedule(schedule, async () => {
     logger.info("Replacing :latest archive");
     await fs.rename(
       join(archiveDirectory, archiveName), // temporary one with timestamp
-      join(archiveDirectory, kebabCase(`${appFullname}-backup-latest.tgz`)) // latest one
+      join(archiveDirectory, kebabCase(`${appFullname}-backup-latest`) + ".tgz") // latest one
     );
 
     const end = dayjs();
@@ -127,3 +137,5 @@ cron.schedule(schedule, async () => {
     process.exit(1);
   }
 });
+
+logger.info(`Added cronjob with schedule ${schedule}`);
