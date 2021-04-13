@@ -20,5 +20,10 @@
     "node-cron": "^3.0.0",
     "tar": "^6.1.0",
     "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "execa": "^5.0.0",
+    "semver": "^7.3.5",
+    "yargs": "^16.2.0"
   }
 }
