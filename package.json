@@ -1,6 +1,6 @@
 {
   "name": "strapi-backup-sidecar",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Minimal NodeJS project to run as sidecar container to a strapi instance to periodically backup project files and optionally uploading to S3 buckets",
   "main": "backup.js",
   "repository": "git@gitlab.com:anny.co/build-utils/strapi-backup-sidecar.git",
