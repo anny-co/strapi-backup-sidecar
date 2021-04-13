@@ -9,15 +9,21 @@ const tar = require("tar");
 const dayjs = require("dayjs");
 const { kebabCase } = require("lodash");
 
-const winston = require("winston");
-const { combine, timestamp, prettyPrint } = winston.format;
+const { createLogger, format, transports } = require("winston");
 
-const logger = winston.createLogger({
+const logger = createLogger({
   level: "debug",
-  formats: combine(timestamp(), prettyPrint()),
+  formats: combine(
+    format.prettyPrint({
+      depth: 10,
+    }),
+    format.timestamp({
+      format: "YYYY-MM-DD HH:mm:ss",
+    })
+  ),
   transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: "backup.log" }),
+    new transports.Console(),
+    new transports.File({ filename: "backup.log" }),
   ],
 });
 
