@@ -47,18 +47,16 @@ async function buildImages({ version } = {}) {
 
   await dockerExec(["image", "rm", imageName, latestImageName]);
 
-  return [
-    imageName,
-    latestImageName,
-  ]
+  return [imageName, latestImageName];
 }
 
-async function run(){
+async function run() {
   const version = argv.imageVersion;
 
   const tags = await buildImages({ version });
 
-  console.log('Built and pushed images to', ...tags);
+  console.log("Built and pushed images to");
+  console.log(tags.map((t) => "- " + t).join("\n"));
 }
 
 const argv = yargs
@@ -71,12 +69,12 @@ const argv = yargs
   .help("h")
   .alias("h", "help").argv;
 
-if(argv.help){
+if (argv.help) {
   yargs.showHelp();
   return;
 }
 
-run().catch(err => {
+run().catch((err) => {
   console.error(err);
   process.exit(1);
-})
+});
