@@ -14,11 +14,11 @@ const { createLogger, format, transports } = require("winston");
 const logger = createLogger({
   level: "debug",
   format: format.combine(
-    format.prettyPrint({
-      depth: 10,
-    }),
     format.timestamp({
       format: "YYYY-MM-DD HH:mm:ss",
+    }),
+    format.prettyPrint({
+      depth: 10,
     })
   ),
   transports: [
