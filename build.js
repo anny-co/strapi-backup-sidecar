@@ -53,7 +53,7 @@ async function buildImages({ version } = {}) {
   ]
 }
 
-function run(){
+async function run(){
   const version = argv.imageVersion;
 
   const tags = await buildImages({ version });
