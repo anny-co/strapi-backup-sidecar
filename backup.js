@@ -13,7 +13,7 @@ const { createLogger, format, transports } = require("winston");
 
 const logger = createLogger({
   level: "debug",
-  formats: format.combine(
+  format: format.combine(
     format.prettyPrint({
       depth: 10,
     }),
