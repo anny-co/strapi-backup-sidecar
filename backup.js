@@ -152,7 +152,7 @@ async function backupRoutine() {
 /**
  * Main worker - runs the backup routine on a given schedule
  */
-cron.schedule(schedule, backupRoutine());
+cron.schedule(schedule, backupRoutine);
 
 logger.info(`Added cronjob with schedule ${schedule}`);
 
