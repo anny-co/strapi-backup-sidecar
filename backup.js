@@ -35,7 +35,7 @@ const schedule = process.env.BACKUP_SCHEDULE || "* * * * *";
 const uploadToS3 = process.env.BACKUP_UPLOAD_TO_S3_ENABLED === "true";
 
 const appDirectory = process.env.APP_DIR;
-const backupDir = process.env.BACKUP_DIR || "/backup";
+const backupDir = process.env.BACKUP_DIR || "/persistent/backup";
 const configFile = process.env.CONFIG_FILE || "strapi.config.json";
 const appFullname = process.env.APP_FULLNAME;
 const backupPathPrefix = process.env.BACKUP_PATH_PREFIX;
