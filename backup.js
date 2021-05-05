@@ -22,7 +22,9 @@ const logger = createLogger({
     })
   ),
   transports: [
-    new transports.Console(),
+    new transports.Console({
+      format: format.combine(format.colorize(), format.simple()),
+    }),
     new transports.File({ filename: "backup.log" }),
   ],
 });
@@ -40,10 +42,7 @@ const configFile = process.env.CONFIG_FILE || "strapi.config.json";
 const appFullname = process.env.APP_FULLNAME;
 const backupPathPrefix = process.env.BACKUP_PATH_PREFIX;
 
-/**
- * Main worker - runs the backup routine on a given schedule
- */
-cron.schedule(schedule, async () => {
+async function backupRoutine() {
   try {
     logger.info("Starting backup cycle");
     const start = dayjs();
@@ -148,6 +147,21 @@ cron.schedule(schedule, async () => {
     logger.error(err.message, { err });
     process.exit(1);
   }
-});
+}
+
+/**
+ * Main worker - runs the backup routine on a given schedule
+ */
+cron.schedule(schedule, backupRoutine());
 
 logger.info(`Added cronjob with schedule ${schedule}`);
+
+backupRoutine()
+  .then(() => {
+    logger.info("Completed initial out-of-order backup run");
+  })
+  .catch((err) => {
+    logger.error("Failed to run initial backup run, aborting startup...");
+    logger.debug({ err });
+    process.exit(1);
+  });
