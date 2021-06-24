@@ -3,7 +3,7 @@
  */
 
 const REGISTRY = "ghcr.io";
-const REPO = "anny.co/strapi-backup-sidecar";
+const REPO = "anny-co/strapi-backup-sidecar";
 
 const fs = require("fs").promises;
 const yargs = require("yargs");
