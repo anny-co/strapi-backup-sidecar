@@ -2,8 +2,8 @@
  * Build script for building sidecar container from nodejs
  */
 
-const REGISTRY = "registry.gitlab.com";
-const REPO = "anny.co/build-utils/strapi-backup-sidecar";
+const REGISTRY = "ghcr.io";
+const REPO = "anny.co/strapi-backup-sidecar";
 
 const fs = require("fs").promises;
 const yargs = require("yargs");
@@ -31,8 +31,8 @@ async function buildImages({ version } = {}) {
     throw new Error("Invalid version provided: " + version);
   }
 
-  let imageName = `${REGISTRY}/${REPO}/dev:${version}`;
-  let latestImageName = `${REGISTRY}/${REPO}/dev:latest`;
+  let imageName = `${REGISTRY}/${REPO}/${version}`;
+  let latestImageName = `${REGISTRY}/${REPO}:latest`;
 
   // build current semver
   await dockerExec(["build", "-t", imageName, "."]);
